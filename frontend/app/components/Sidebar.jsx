@@ -1,29 +1,7 @@
 import React from "react";
 import { href, NavLink, Link } from "react-router";
 
-/**
- * Sidebar Components
- *
- * This file demonstrates React component organization and modularity:
- * 1. Multiple related components in one file
- * 2. Import/export patterns for sharing components
- * 3. Component composition and hierarchy
- * 4. File organization for better project structure
- * 5. CONTROLLED COMPONENTS: Components that manage form input state
- * 6. CLIENT-SIDE NAVIGATION: Using Link for faster page transitions
- */
 
-/**
- * SidebarHeader Component
- *
- * Handles the top section of the sidebar with title and new chat button.
- * Now uses React Router's Link component for client-side navigation.
- *
- * Key concepts:
- * 1. LINK COMPONENT: Enables client-side routing without full page reload
- * 2. FASTER NAVIGATION: No server roundtrip, instant UI updates
- * 3. SPA BEHAVIOR: Maintains application state during navigation
- */
 function SidebarHeader() {
   return (
     <div className="sidebar-header">
@@ -35,17 +13,7 @@ function SidebarHeader() {
   );
 }
 
-/**
- * ChatThreadItem Component
- *
- * Now uses CALLBACK FUNCTIONS and CLIENT-SIDE NAVIGATION! Key concepts:
- * 1. DESTRUCTURING: Extract thread data and callback function
- * 2. CALLBACK INVOCATION: Call parent function to trigger state updates
- * 3. EVENT HANDLING: Still handle click events but now trigger real actions
- * 4. STATE LIFTING: Component doesn't manage state, just triggers updates
- * 5. UNIDIRECTIONAL DATA FLOW: Data flows down, events flow up
- * 6. LINK COMPONENT: Uses React Router's Link for smooth navigation
- */
+
 function ChatThreadItem({ thread, onDeleteThread }) {
   const { id, title } = thread;
 
@@ -86,17 +54,7 @@ function ChatThreadItem({ thread, onDeleteThread }) {
   );
 }
 
-/**
- * ChatThreadsList Component
- *
- * Now demonstrates CONTROLLED COMPONENTS and COMPUTED STATE! Key concepts:
- * 1. CONTROLLED COMPONENTS: Input value managed by React state
- * 2. COMPUTED STATE: Filtering data without additional useState
- * 3. ARRAY METHODS: Using filter() to transform data
- * 4. LOCAL STATE: Managing search input with useState
- * 5. CASE-INSENSITIVE SEARCH: Using toLowerCase() for better UX
- * 6. REAL-TIME FILTERING: Updates as user types
- */
+
 function ChatThreadsList({ threads = [], onDeleteThread }) {
   // LOCAL STATE: Managing search input value (controlled component)
   const [searchValue, setSearchValue] = React.useState("");
@@ -139,12 +97,7 @@ function ChatThreadsList({ threads = [], onDeleteThread }) {
   );
 }
 
-/**
- * SidebarFooter Component
- *
- * Handles the user profile section at the bottom of the sidebar.
- * Demonstrates component modularity and independence.
- */
+
 function SidebarFooter() {
   return (
     <div className="sidebar-footer">
@@ -162,16 +115,7 @@ function SidebarFooter() {
   );
 }
 
-/**
- * Main Sidebar Component
- *
- * Now handles CALLBACK PROP DRILLING! Key concepts:
- * 1. DESTRUCTURING: Extract both data and callback functions
- * 2. CALLBACK DRILLING: Pass functions down through component hierarchy
- * 3. INTERMEDIATE COMPONENT: Forwards callbacks without using them directly
- * 4. SEPARATION OF CONCERNS: Sidebar doesn't handle delete logic
- * 5. PROP FORWARDING: Clean pattern for passing props to children
- */
+
 export default function Sidebar({ threads, onDeleteThread }) {
   return (
     <aside className="sidebar">

@@ -1,16 +1,6 @@
 import { Outlet, useLoaderData } from "react-router";
 import Sidebar from "../components/Sidebar.jsx";
 
-/**
- * INITIAL DATA FOR STATE
- *
- * Moving from static to dynamic data demonstrates:
- * 1. STATE INITIALIZATION: Defining initial data for useState
- * 2. DATA IMMUTABILITY: How React state should be updated immutably
- * 3. COMPONENT LIFECYCLE: Data that changes over component lifetime
- * 4. MODULE SCOPE vs COMPONENT SCOPE: Where different data belongs
- */
-
 export async function clientLoader() {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -54,16 +44,6 @@ export async function clientLoader() {
   return { threads: mockThreadData };
 }
 
-/**
- * Layout Component
- *
- * Now demonstrates STATE MANAGEMENT and CALLBACK PATTERNS:
- * 1. USESTATE HOOK: Managing dynamic data that changes over time
- * 2. STATE UPDATES: Immutable updates using array filter method
- * 3. CALLBACK PROPS: Passing functions down to child components
- * 4. DATA FLOW: State updates flow up, data flows down
- * 5. COMPONENT COMMUNICATION: Parent-child communication via callbacks
- */
 export default function Layout() {
   // STATE: threads is now dynamic data that can change!
   const { threads } = useLoaderData();

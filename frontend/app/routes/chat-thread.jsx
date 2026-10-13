@@ -1,17 +1,6 @@
 import { useLoaderData } from "react-router";
 import { ChatMessages, ChatInput } from "../components/Chat.jsx";
 
-/**
- * Chat Thread Route Component
- *
- * This route displays an individual chat conversation thread.
- * Now uses useParams() to access the threadId from the URL!
- *
- * Key concepts:
- * 1. useParams() HOOK: Extracts URL parameters from the route
- * 2. The `messages` state is currently shared among all threads, this will be fixed later.
- */
-
 export async function clientLoader({ params }) {
   await new Promise((resolve) => setTimeout(resolve, 500));
 

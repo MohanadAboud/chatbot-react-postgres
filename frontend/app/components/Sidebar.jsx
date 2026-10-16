@@ -1,6 +1,30 @@
 import React from "react";
-import { href, Link, NavLink } from "react-router";
+import { href, Link, NavLink, useFetcher } from "react-router";
 
+/**
+ * Sidebar Components
+ *
+ * This file demonstrates React component organization and modularity:
+ * 1. Multiple related components in one file
+ * 2. Import/export patterns for sharing components
+ * 3. Component composition and hierarchy
+ * 4. File organization for better project structure
+ * 5. CONTROLLED COMPONENTS: Components that manage form input state
+ * 6. CLIENT-SIDE NAVIGATION: Using Link for faster page transitions
+ * 7. USEFETCHER HOOK: For mutations without navigation
+ */
+
+/**
+ * SidebarHeader Component
+ *
+ * Handles the top section of the sidebar with title and new chat button.
+ * Now uses React Router's Link component for client-side navigation.
+ *
+ * Key concepts:
+ * 1. LINK COMPONENT: Enables client-side routing without full page reload
+ * 2. FASTER NAVIGATION: No server roundtrip, instant UI updates
+ * 3. SPA BEHAVIOR: Maintains application state during navigation
+ */
 function SidebarHeader() {
   return (
     <div className="sidebar-header">
@@ -12,18 +36,26 @@ function SidebarHeader() {
   );
 }
 
-function ChatThreadItem({ thread, onDeleteThread }) {
+/**
+ * ChatThreadItem Component
+ *
+ * Now uses USEFETCHER for NON-NAVIGATING MUTATIONS! Key concepts:
+ * 1. USEFETCHER HOOK: Submits forms without navigation
+ * 2. FETCHER.FORM: Special Form component tied to the fetcher
+ * 3. INTENT PATTERN: Multiple actions in one route via hidden input
+ * 4. OPTIMISTIC UI: Can show loading state with fetcher.state
+ * 5. NO CALLBACKS: Direct communication with parent route's action
+ * 6. NAVLINK COMPONENT: Automatically provides isActive and isPending states
+ * 7. ACTIVE STYLING: Highlights the currently displayed thread
+ * 8. PENDING STYLING: Shows pulsating animation while data is loading
+ */
+function ChatThreadItem({ thread }) {
   const { id, title } = thread;
+  const fetcher = useFetcher();
 
-  const handleDeleteClick = (event) => {
-    // Prevent the click from bubbling up to parent elements
-    event.stopPropagation();
-
-    // Call the callback function passed from parent to delete the thread
-    if (onDeleteThread) {
-      onDeleteThread(id);
-    }
-  };
+  // Check if this specific thread is being deleted
+  const isDeleting =
+    fetcher.state !== "idle" && fetcher.formData?.get("threadId") === id;
 
   return (
     <li className="chat-thread-item">
@@ -42,21 +74,38 @@ function ChatThreadItem({ thread, onDeleteThread }) {
         >
           {title}
         </NavLink>
-        <button
-          className="delete-thread-btn"
-          aria-label={`Delete thread: ${title}`}
-          title="Delete this conversation"
-          type="button"
-          onClick={handleDeleteClick}
-        >
-          &times;
-        </button>
+        <fetcher.Form method="post">
+          {/* Hidden inputs to identify the action and thread */}
+          <input type="hidden" name="intent" value="delete" />
+          <input type="hidden" name="threadId" value={id} />
+          <button
+            className="delete-thread-btn"
+            aria-label={`Delete thread: ${title}`}
+            title="Delete this conversation"
+            type="submit"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "···" : "×"}
+          </button>
+        </fetcher.Form>
       </div>
     </li>
   );
 }
 
-function ChatThreadsList({ threads = [], onDeleteThread }) {
+/**
+ * ChatThreadsList Component
+ *
+ * Now demonstrates CONTROLLED COMPONENTS and COMPUTED STATE! Key concepts:
+ * 1. CONTROLLED COMPONENTS: Input value managed by React state
+ * 2. COMPUTED STATE: Filtering data without additional useState
+ * 3. ARRAY METHODS: Using filter() to transform data
+ * 4. LOCAL STATE: Managing search input with useState
+ * 5. CASE-INSENSITIVE SEARCH: Using toLowerCase() for better UX
+ * 6. REAL-TIME FILTERING: Updates as user types
+ * 7. NO CALLBACK DRILLING: ChatThreadItem uses useFetcher directly
+ */
+function ChatThreadsList({ threads = [] }) {
   // LOCAL STATE: Managing search input value (controlled component)
   const [searchValue, setSearchValue] = React.useState("");
 
@@ -85,19 +134,21 @@ function ChatThreadsList({ threads = [], onDeleteThread }) {
       </div>
 
       <ul>
-        {/* Render filtered threads instead of all threads */}
+        {/* Render filtered threads - no callback prop needed */}
         {filteredThreads.map((thread) => (
-          <ChatThreadItem
-            key={thread.id}
-            thread={thread}
-            onDeleteThread={onDeleteThread}
-          />
+          <ChatThreadItem key={thread.id} thread={thread} />
         ))}
       </ul>
     </nav>
   );
 }
 
+/**
+ * SidebarFooter Component
+ *
+ * Handles the user profile section at the bottom of the sidebar.
+ * Demonstrates component modularity and independence.
+ */
 function SidebarFooter() {
   return (
     <div className="sidebar-footer">
@@ -115,12 +166,22 @@ function SidebarFooter() {
   );
 }
 
-export default function Sidebar({ threads, onDeleteThread }) {
+/**
+ * Main Sidebar Component
+ *
+ * Now simplified with NO CALLBACK DRILLING! Key concepts:
+ * 1. DESTRUCTURING: Only needs threads data
+ * 2. NO CALLBACKS: Children use useFetcher to communicate with routes
+ * 3. SIMPLIFIED PROPS: Cleaner component interface
+ * 4. COLOCATION: Actions live where they're used (ChatThreadItem)
+ * 5. COMPOSITION: Build complex UIs from simple, focused components
+ */
+export default function Sidebar({ threads }) {
   return (
     <aside className="sidebar">
-      {/* Component composition with both data and callback drilling */}
+      {/* Component composition - no callback prop drilling needed */}
       <SidebarHeader />
-      <ChatThreadsList threads={threads} onDeleteThread={onDeleteThread} />
+      <ChatThreadsList threads={threads} />
       <SidebarFooter />
     </aside>
   );

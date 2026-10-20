@@ -75,6 +75,63 @@ Fetches all chat threads, ordered by creation date (newest first).
 ]
 ```
 
+### GET /api/threads/:id
+
+Fetches a single thread by its ID.
+
+**URL Parameters:**
+
+- `id` - The UUID of the thread
+
+**Response (200 OK):**
+
+```json
+{
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "title": "My chat thread",
+  "created_at": "2025-10-13T10:30:00Z"
+}
+```
+
+**Response (404 Not Found):**
+
+```json
+{
+  "error": "Thread not found"
+}
+```
+
+### GET /api/threads/:id/messages
+
+Fetches all messages for a specific thread, ordered chronologically (oldest first).
+
+**URL Parameters:**
+
+- `id` - The UUID of the thread
+
+**Response:**
+
+```json
+[
+  {
+    "id": "uuid",
+    "thread_id": "uuid",
+    "type": "user",
+    "content": "Hello, how are you?",
+    "created_at": "2025-10-13T10:30:00Z"
+  },
+  {
+    "id": "uuid",
+    "thread_id": "uuid",
+    "type": "bot",
+    "content": "I'm doing well, thank you!",
+    "created_at": "2025-10-13T10:30:15Z"
+  }
+]
+```
+
+**Note:** Returns an empty array `[]` if the thread has no messages.
+
 ## Testing
 
 ### Test with curl
@@ -85,6 +142,12 @@ curl http://localhost:3000/
 
 # Get all threads
 curl http://localhost:3000/api/threads
+
+# Get a specific thread (replace with an actual UUID from your database)
+curl http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000
+
+# Get messages for a thread
+curl http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000/messages
 ```
 
 ### Test with Browser
@@ -93,6 +156,8 @@ Open your browser and navigate to:
 
 - `http://localhost:3000/` - Should show the welcome message
 - `http://localhost:3000/api/threads` - Should show the list of threads
+- `http://localhost:3000/api/threads/{id}` - Replace `{id}` with an actual thread UUID
+- `http://localhost:3000/api/threads/{id}/messages` - Shows messages for a specific thread
 
 ## Project Structure
 

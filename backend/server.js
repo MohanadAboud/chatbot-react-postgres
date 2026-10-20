@@ -1,17 +1,12 @@
-// ========== Import dependencies ========== //
 import express from "express";
 import cors from "cors";
 import sql from "./db.js";
 
-// ========== Setup Express App ========== //
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
-// ========== Define API Endpoints ========== //
-
-// Root endpoint - verify server is running
 app.get("/", (req, res) => {
   res.json({
     message: "Chatbot API Server 🤖",
@@ -21,7 +16,6 @@ app.get("/", (req, res) => {
 
 app.get("/api/threads", async (req, res) => {
   try {
-    // Execute SQL query using the sql`` tagged template
     const threads = await sql`
       SELECT id, title, created_at 
       FROM threads 
@@ -30,18 +24,59 @@ app.get("/api/threads", async (req, res) => {
 
     res.json(threads);
   } catch (error) {
-    // Log the error for debugging (you should see this in the terminal)
     console.error("Error fetching threads:", error);
 
-    // Return a generic error message to the client
-    // Don't expose internal error details for security
     res.status(500).json({
       error: "Failed to fetch threads from database",
     });
   }
 });
 
-// ========== Start the server ========== //
+app.get("/api/threads/:id", async (req, res) => {
+  try {
+    const threadId = req.params.id;
+
+    const threads = await sql`
+      SELECT id, title, created_at 
+      FROM threads 
+      WHERE id = ${threadId}
+    `;
+
+    if (threads.length === 0) {
+      return res.status(404).json({
+        error: "Thread not found",
+      });
+    }
+
+    res.json(threads[0]);
+  } catch (error) {
+    console.error("Error fetching thread:", error);
+    res.status(500).json({
+      error: "Failed to fetch thread from database",
+    });
+  }
+});
+
+app.get("/api/threads/:id/messages", async (req, res) => {
+  try {
+    const threadId = req.params.id;
+
+    const messages = await sql`
+      SELECT id, thread_id, type, content, created_at 
+      FROM messages 
+      WHERE thread_id = ${threadId}
+      ORDER BY created_at ASC
+    `;
+
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({
+      error: "Failed to fetch messages from database",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
 });

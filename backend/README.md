@@ -132,6 +132,64 @@ Fetches all messages for a specific thread, ordered chronologically (oldest firs
 
 **Note:** Returns an empty array `[]` if the thread has no messages.
 
+### POST /api/threads/:id/messages
+
+Creates a new message in a thread.
+
+**URL Parameters:**
+
+- `id` - The UUID of the thread
+
+**Request Body:**
+
+```json
+{
+  "type": "user",
+  "content": "This is my message"
+}
+```
+
+**Request Body Fields:**
+
+- `type` (required) - Must be either `"user"` or `"bot"`
+- `content` (required) - The message text (cannot be empty)
+
+**Response (201 Created):**
+
+```json
+{
+  "id": "789e4567-e89b-12d3-a456-426614174000",
+  "thread_id": "123e4567-e89b-12d3-a456-426614174000",
+  "type": "user",
+  "content": "This is my message",
+  "created_at": "2025-10-13T10:35:00Z"
+}
+```
+
+**Response (400 Bad Request):**
+
+```json
+{
+  "error": "Both 'type' and 'content' are required"
+}
+```
+
+or
+
+```json
+{
+  "error": "Type must be either 'user' or 'bot'"
+}
+```
+
+or
+
+```json
+{
+  "error": "Content cannot be empty"
+}
+```
+
 ## Testing
 
 ### Test with curl
@@ -148,16 +206,37 @@ curl http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000
 
 # Get messages for a thread
 curl http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000/messages
+
+# Create a new message (POST request)
+curl -X POST http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000/messages \
+  -H "Content-Type: application/json" \
+  -d '{"type":"user","content":"Hello from curl!"}'
+
+# Test validation - missing content (should return 400)
+curl -X POST http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000/messages \
+  -H "Content-Type: application/json" \
+  -d '{"type":"user"}'
+
+# Test validation - invalid type (should return 400)
+curl -X POST http://localhost:3000/api/threads/123e4567-e89b-12d3-a456-426614174000/messages \
+  -H "Content-Type: application/json" \
+  -d '{"type":"admin","content":"This should fail"}'
 ```
 
 ### Test with Browser
 
-Open your browser and navigate to:
+GET endpoints can be tested in the browser:
 
 - `http://localhost:3000/` - Should show the welcome message
 - `http://localhost:3000/api/threads` - Should show the list of threads
 - `http://localhost:3000/api/threads/{id}` - Replace `{id}` with an actual thread UUID
 - `http://localhost:3000/api/threads/{id}/messages` - Shows messages for a specific thread
+
+POST endpoints require a tool like:
+- curl (see examples above)
+- Postman
+- Thunder Client (VS Code extension)
+- Or test through your frontend application
 
 ## Project Structure
 

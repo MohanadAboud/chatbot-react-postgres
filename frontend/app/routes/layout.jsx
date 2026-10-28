@@ -1,33 +1,33 @@
-import { Outlet, useLoaderData, redirect } from "react-router";
+import {
+  Link,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useRevalidator,
+  useRouteError,
+} from "react-router";
 import Sidebar from "../components/Sidebar.jsx";
-import { apiFetch } from "../lib/apiFetch.js";
-import { supabase } from "../lib/supabase.js";
 
-/**
- * CLIENT LOADER FUNCTION
- *
- * Fetches the list of chat threads from our custom API before the layout renders.
- * Key concepts:
- * 1. PARENT ROUTE LOADER: Runs before any child route loaders
- * 2. SHARED DATA: Data is available to this component and can be accessed by children
- * 3. CUSTOM API: Direct HTTP calls to our Express API server
- * 4. ENVIRONMENT VARIABLES: Secure way to store API endpoint URLs
- * 5. AUTHENTICATED REQUESTS: Uses apiFetch to include JWT token
- *
- * This loader runs:
- * - On initial page load
- * - When navigating to any route under this layout
- * - When React Router revalidates (after mutations)
- */
 export async function clientLoader() {
-  // Make the request to our custom API with authentication
-  // apiFetch automatically includes the JWT token in the Authorization header
-  // and constructs the full URL from the API base URL + path
-  const response = await apiFetch("/api/threads");
+  const apiUrl = import.meta.env.VITE_API_URL;
+  // Get our API URL from environment variables
+
+  // Construct the API endpoint URL
+  // Our custom API handles sorting internally (ORDER BY created_at DESC)
+  const url = `${apiUrl}/api/threads`;
+
+  // Make the request to our custom API
+  // No special headers needed - our API is public for now
+  const response = await fetch(url);
 
   // Check if the request was successful
   if (!response.ok) {
-    throw new Error(`Failed to fetch threads: ${response.status}`);
+    const message =
+      response.status >= 500
+        ? "The API could not load threads. Check that backend/.env has a valid DATABASE_URL and that the database is reachable."
+        : `The API request failed with status ${response.status}.`;
+
+    throw new Response(message, { status: response.status });
   }
 
   // Parse the JSON response
@@ -36,35 +36,50 @@ export async function clientLoader() {
   return { threads };
 }
 
-/**
- * CLIENT ACTION FUNCTION
- *
- * Handles thread deletion and user logout.
- * Key concepts:
- * 1. INTENT PATTERN: Uses form field to identify the action type
- * 2. MULTIPLE ACTIONS: Single route handles different operations
- * 3. DELETE REQUEST: Sends DELETE request to our custom API
- * 4. LOGOUT: Clears session and redirects to login
- * 5. AUTOMATIC REVALIDATION: Loader re-runs after mutations
- *
- * The action runs:
- * - When a Form with method="post" is submitted to this route
- * - Checks the "intent" field to determine which action to perform
- */
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const { revalidate, state } = useRevalidator();
+  const message =
+    error?.data ||
+    (error instanceof Error
+      ? "Could not reach the chat API. Check that the backend server is running."
+      : "An unexpected error occurred while loading chats.");
+
+  return (
+    <main className="route-error" role="alert">
+      <div>
+        <h1>Couldn't load chat threads</h1>
+        <p>{message}</p>
+        <div className="route-error-actions">
+          <button
+            type="button"
+            onClick={revalidate}
+            disabled={state === "loading"}
+          >
+            {state === "loading" ? "Retrying..." : "Try again"}
+          </button>
+          <Link to="/chat/new">Start a new chat</Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export async function clientAction({ request }) {
+  // Get our API URL from environment variables
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   // Extract form data
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const threadId = formData.get("threadId");
 
-  // Handle delete thread intent
-  if (intent === "delete") {
-    const threadId = formData.get("threadId");
-
+  // Handle delete intent
+  if (intent === "delete" && threadId) {
     try {
-      // DELETE request to our custom API with authentication
-      // apiFetch automatically includes the JWT token
+      // DELETE request to our custom API
       // Messages are automatically deleted due to CASCADE
-      const response = await apiFetch(`/api/threads/${threadId}`, {
+      const response = await fetch(`${apiUrl}/api/threads/${threadId}`, {
         method: "DELETE",
       });
 
@@ -78,35 +93,9 @@ export async function clientAction({ request }) {
     }
   }
 
-  // Handle logout intent
-  if (intent === "logout") {
-    // Sign out the user using Supabase Auth
-    // This clears the session and JWT tokens from localStorage
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("Error signing out:", error.message);
-    }
-
-    // Redirect to login page after logout
-    return redirect("/login");
-  }
-
   return null;
 }
 
-/**
- * Layout Component
- *
- * Now uses DATA LOADING and MUTATIONS!
- *
- * Key concepts:
- * 1. useLoaderData() HOOK: Accesses data from clientLoader
- * 2. NO STATE MANAGEMENT: Data comes from loader, not useState
- * 3. LAYOUT PATTERN: Wraps child routes with consistent UI (sidebar)
- * 4. OUTLET: Renders the matched child route component
- * 5. NO DELETE CALLBACK: Sidebar handles deletion with useFetcher
- */
 export default function Layout() {
   // Access threads data from the loader
   const { threads } = useLoaderData();

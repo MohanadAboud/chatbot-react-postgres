@@ -1,23 +1,10 @@
 import { useActionData, redirect } from "react-router";
 import { ChatInput, ChatMessages } from "../components/Chat.jsx";
-import { apiFetch } from "../lib/apiFetch.js";
 
-/**
- * CLIENT ACTION FUNCTION
- *
- * Handles creation of new chat threads with their first message.
- * Key concepts:
- * 1. COMPOUND OPERATION: Single API call creates both thread and message
- * 2. REDIRECT: Navigate to new thread after successful creation
- * 3. TITLE GENERATION: Create thread title from first message
- * 4. ERROR HANDLING: Validate input and handle API errors
- * 5. AUTHENTICATED REQUESTS: Uses apiFetch to include JWT token
- *
- * The action runs:
- * - When a Form with method="post" is submitted
- * - Returns a redirect to navigate to the new thread
- */
 export async function clientAction({ request }) {
+  // Get our API URL from environment variables
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   // Extract form data
   const formData = await request.formData();
   const content = formData.get("message");
@@ -36,8 +23,7 @@ export async function clientAction({ request }) {
   try {
     // Create the thread with its first message in a single request
     // Our custom API handles both operations as a compound mutation
-    // apiFetch automatically includes the JWT token and handles the base URL
-    const response = await apiFetch("/api/threads", {
+    const response = await fetch(`${apiUrl}/api/threads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,18 +55,6 @@ export async function clientAction({ request }) {
   }
 }
 
-/**
- * Chat New Route Component
- *
- * Provides a form to start a new conversation.
- * When submitted, creates a thread and redirects to it.
- *
- * Key concepts:
- * 1. DEDICATED ROUTE: Separate route for new chat functionality
- * 2. CLEAN URL: /chat/new is semantic and user-friendly
- * 3. FORM SUBMISSION: Uses ChatInput component with Form
- * 4. ERROR DISPLAY: Shows validation or API errors to user
- */
 export default function ChatNew() {
   // Access action result for error display
   const actionData = useActionData();

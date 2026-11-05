@@ -1,0 +1,21 @@
+{
+  "name": "chatbot-react-postgres",
+  "version": "1.0.0",
+  "description": "<img width=\"2880\" height=\"1578\" alt=\"chatbot-ui-screenshot\" src=\"https://github.com/user-attachments/assets/40f4435a-0fe2-4813-9f20-9597a2cdfc93\" />",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohanadAboud/-chatbot-react-postgres.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MohanadAboud/-chatbot-react-postgres/issues"
+  },
+  "homepage": "https://github.com/MohanadAboud/-chatbot-react-postgres#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.6"
+  }
+}

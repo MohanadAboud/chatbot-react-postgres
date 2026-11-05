@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import sql from "./db.js";
+import { requireAuth } from "./auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +17,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/api/threads", async (req, res) => {
+app.get("/api/threads", requireAuth, async (req, res) => {
   try {
     const threads = await sql`
       SELECT id, title, created_at 
@@ -34,7 +35,7 @@ app.get("/api/threads", async (req, res) => {
   }
 });
 
-app.get("/api/threads/:id", async (req, res) => {
+app.get("/api/threads/:id", requireAuth, async (req, res) => {
   try {
     const threadId = req.params.id;
 
@@ -59,7 +60,7 @@ app.get("/api/threads/:id", async (req, res) => {
   }
 });
 
-app.get("/api/threads/:id/messages", async (req, res) => {
+app.get("/api/threads/:id/messages", requireAuth, async (req, res) => {
   try {
     const threadId = req.params.id;
 
@@ -79,7 +80,7 @@ app.get("/api/threads/:id/messages", async (req, res) => {
   }
 });
 
-app.post("/api/threads/:id/messages", async (req, res) => {
+app.post("/api/threads/:id/messages", requireAuth, async (req, res) => {
   try {
     const threadId = req.params.id;
     const { type, content } = req.body;
@@ -118,7 +119,7 @@ app.post("/api/threads/:id/messages", async (req, res) => {
   }
 });
 
-app.post("/api/threads", async (req, res) => {
+app.post("/api/threads", requireAuth, async (req, res) => {
   try {
     const { title, content } = req.body;
 
@@ -168,7 +169,7 @@ app.post("/api/threads", async (req, res) => {
   }
 });
 
-app.patch("/api/threads/:id", async (req, res) => {
+app.patch("/api/threads/:id", requireAuth, async (req, res) => {
   try {
     const threadId = req.params.id;
 
@@ -209,7 +210,7 @@ app.patch("/api/threads/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/threads/:id", async (req, res) => {
+app.delete("/api/threads/:id", requireAuth, async (req, res) => {
   try {
     const threadId = req.params.id;
 

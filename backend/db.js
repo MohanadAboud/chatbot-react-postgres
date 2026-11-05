@@ -1,3 +1,4 @@
+// ========== Database Connection ========== //
 import postgres from "postgres";
 
 // Get database connection string from environment variable
@@ -11,6 +12,9 @@ if (!connectionString) {
   );
 }
 
+// Create the database connection
+// The postgres() function returns a sql`` tagged template function
 const sql = postgres(connectionString);
 
+// Export for use in other files
 export default sql;

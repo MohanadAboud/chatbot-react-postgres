@@ -59,6 +59,7 @@ export async function clientAction({ params, request }) {
 
   try {
     // PATCH to our custom API to update the thread title
+    // apiFetch automatically includes the JWT token and handles the base URL
     const response = await apiFetch(`/api/threads/${params.threadId}`, {
       method: "PATCH",
       headers: {

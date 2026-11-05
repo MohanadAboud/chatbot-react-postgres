@@ -3,9 +3,6 @@ import { ChatInput, ChatMessages } from "../components/Chat.jsx";
 import { apiFetch } from "../lib/apiFetch.js";
 
 export async function clientAction({ request }) {
-  // Get our API URL from environment variables
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   // Extract form data
   const formData = await request.formData();
   const content = formData.get("message");
@@ -22,8 +19,6 @@ export async function clientAction({ request }) {
       : content.trim();
 
   try {
-    // Create the thread with its first message in a single request
-    // Our custom API handles both operations as a compound mutation
     const response = await apiFetch("/api/threads", {
       method: "POST",
       headers: {

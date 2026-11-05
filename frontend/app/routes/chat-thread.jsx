@@ -33,7 +33,10 @@ export function ErrorBoundary() {
 }
 
 export async function clientLoader({ params }) {
+  // Fetch thread metadata from our API with authentication
+  // apiFetch handles the base URL and adds the JWT token
   const threadResponse = await apiFetch(`/api/threads/${params.threadId}`);
+
   // Check for 404 specifically - thread doesn't exist
   if (threadResponse.status === 404) {
     throw new Response("Thread not found", { status: 404 });
@@ -47,7 +50,7 @@ export async function clientLoader({ params }) {
   // Our API returns the thread object directly (not in an array)
   const thread = await threadResponse.json();
 
-  // Fetch messages for this thread
+  // Fetch messages for this thread with authentication
   // Our API handles filtering by thread_id and sorting chronologically
   const messagesResponse = await apiFetch(
     `/api/threads/${params.threadId}/messages`,
@@ -66,8 +69,6 @@ export async function clientLoader({ params }) {
 }
 
 export async function clientAction({ params, request }) {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   // Extract form data from the request
   const formData = await request.formData();
   const content = formData.get("message");
@@ -83,7 +84,8 @@ export async function clientAction({ params, request }) {
     content: content.trim(),
   };
 
-  // POST to our custom API to create the message
+  // POST to our custom API to create the message with authentication
+  // apiFetch automatically includes the JWT token and handles the base URL
   try {
     const response = await apiFetch(
       `/api/threads/${params.threadId}/messages`,

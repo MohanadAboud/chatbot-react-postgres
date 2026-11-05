@@ -8,4 +8,7 @@ export default [
       route("edit", "routes/chat-thread-edit.jsx"),
     ]),
   ]),
+  // Authentication routes (outside main layout)
+  route("login", "routes/login.jsx"),
+  route("register", "routes/register.jsx"),
 ];

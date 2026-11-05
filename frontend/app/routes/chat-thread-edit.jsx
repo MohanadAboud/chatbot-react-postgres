@@ -5,6 +5,7 @@ import {
   Link,
   useRouteLoaderData,
 } from "react-router";
+import { apiFetch } from "../lib/apiFetch.js";
 
 export default function ChatThreadEdit() {
   // Access the thread data from the parent route's loader
@@ -47,8 +48,6 @@ export default function ChatThreadEdit() {
 }
 
 export async function clientAction({ params, request }) {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   // Extract form data
   const formData = await request.formData();
   const title = formData.get("title");
@@ -60,7 +59,7 @@ export async function clientAction({ params, request }) {
 
   try {
     // PATCH to our custom API to update the thread title
-    const response = await fetch(`${apiUrl}/api/threads/${params.threadId}`, {
+    const response = await apiFetch(`/api/threads/${params.threadId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

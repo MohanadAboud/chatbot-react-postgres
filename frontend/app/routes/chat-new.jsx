@@ -1,5 +1,6 @@
 import { useActionData, redirect } from "react-router";
 import { ChatInput, ChatMessages } from "../components/Chat.jsx";
+import { apiFetch } from "../lib/apiFetch.js";
 
 export async function clientAction({ request }) {
   // Get our API URL from environment variables
@@ -23,7 +24,7 @@ export async function clientAction({ request }) {
   try {
     // Create the thread with its first message in a single request
     // Our custom API handles both operations as a compound mutation
-    const response = await fetch(`${apiUrl}/api/threads`, {
+    const response = await apiFetch("/api/threads", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

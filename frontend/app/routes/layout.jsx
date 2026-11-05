@@ -7,18 +7,11 @@ import {
   useRouteError,
 } from "react-router";
 import Sidebar from "../components/Sidebar.jsx";
+import { apiFetch } from "../lib/apiFetch.js";
+import { supabase } from "../lib/supabase.js";
 
 export async function clientLoader() {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  // Get our API URL from environment variables
-
-  // Construct the API endpoint URL
-  // Our custom API handles sorting internally (ORDER BY created_at DESC)
-  const url = `${apiUrl}/api/threads`;
-
-  // Make the request to our custom API
-  // No special headers needed - our API is public for now
-  const response = await fetch(url);
+  const response = await apiFetch("/api/threads");
 
   // Check if the request was successful
   if (!response.ok) {
@@ -66,20 +59,17 @@ export function ErrorBoundary() {
 }
 
 export async function clientAction({ request }) {
-  // Get our API URL from environment variables
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   // Extract form data
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const threadId = formData.get("threadId");
 
   // Handle delete intent
-  if (intent === "delete" && threadId) {
+  if (intent === "delete") {
+    const threadId = formData.get("threadId");
     try {
       // DELETE request to our custom API
       // Messages are automatically deleted due to CASCADE
-      const response = await fetch(`${apiUrl}/api/threads/${threadId}`, {
+      const response = await apiFetch(`/api/threads/${threadId}`, {
         method: "DELETE",
       });
 
@@ -91,6 +81,18 @@ export async function clientAction({ request }) {
     } catch (error) {
       return { error: error.message };
     }
+  }
+  if (intent === "logout") {
+    // Sign out the user using Supabase Auth
+    // This clears the session and JWT tokens from localStorage
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Error signing out:", error.message);
+    }
+
+    // Redirect to login page after logout
+    return redirect("/login");
   }
 
   return null;

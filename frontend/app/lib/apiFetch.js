@@ -11,10 +11,12 @@ import { redirect } from "react-router";
  */
 export async function apiFetch(path, options = {}) {
   // Get our API URL from environment variables
-  const apiUrl = import.meta.env.VITE_API_URL;
+  // Strip any trailing slashes so we never end up with "//api/..." (which 404s)
+  const apiUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
   // Construct the full URL by combining API base URL with the path
-  const url = `${apiUrl}${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${apiUrl}${normalizedPath}`;
 
   // Get the current session from Supabase
   // This returns { data: { session }, error }
